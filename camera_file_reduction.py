@@ -7,6 +7,7 @@ from sigfig import round;
 from os import listdir;
 from os.path import join;
 from os.path import exists;
+from sys import exit;
 
 # debugging constants
 debuglevel = 2
