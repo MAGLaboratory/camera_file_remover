@@ -71,7 +71,7 @@ while (disk_usage > du_low):
     shutil.rmtree(daypath);
 
     camera_index += 1;
-    if (camera_index > len(cameras)):
+    if (camera_index >= len(cameras)):
         camera_index = 0;
 
     # update disk usage
