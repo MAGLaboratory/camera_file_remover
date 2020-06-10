@@ -9,7 +9,7 @@ from os.path import join;
 from os.path import exists;
 
 # debugging constants
-debuglevel = 1
+debuglevel = 2
 
 # paths
 external_drive = "/media/external_disk/"
@@ -26,8 +26,9 @@ disk_usage = round(disk_usage, sigfigs=2);
 
 # terminate the program if disk usage is below the limit
 if (disk_usage < du_high):
-    print("Disk usage at %.2f within limit of %.2f." % (disk_usage, du_high), end=' ');
-    print("No pruning required.");
+    if (debuglevel > 0):
+        print("Disk usage at %.2f within limit of %.2f." % (disk_usage, du_high), end=' ');
+        print("No pruning required.");
     exit(0);
 
 
@@ -50,7 +51,7 @@ while (disk_usage > du_low):
     monthlist.sort();
     if (not monthlist):
         # remove the year directory
-        if (debuglevel > 0):
+        if (debuglevel > 1):
             print ("Removing year directory \"" + yearpath + "\".");
         shutil.rmtree(yearpath);
         continue;
@@ -60,13 +61,13 @@ while (disk_usage > du_low):
     daylist.sort();
     if (not daylist):
         # remove the year directory
-        if (debuglevel > 0):
+        if (debuglevel > 1):
             print ("Removing month directory \"" + monthpath + "\".");
         shutil.rmtree(monthpath);
         continue;
     daypath = join(monthpath, daylist[0]);
 
-    if (debuglevel > 0):
+    if (debuglevel > 1):
         print ("Removing day directory \"" + daypath + "\".");
     shutil.rmtree(daypath);
 
