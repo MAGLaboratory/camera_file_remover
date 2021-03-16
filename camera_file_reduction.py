@@ -3,7 +3,6 @@
 # This script prunes the external storage drive for old surveillence camera files
 
 import shutil;
-from sigfig import round;
 from os import listdir;
 from os.path import join;
 from os.path import exists;
@@ -22,8 +21,7 @@ du_low  = 0.80
 
 # Determine drive fullness
 stat = shutil.disk_usage(external_drive);
-disk_usage = round(stat.used, sigfigs=3) / round(stat.total, sigfigs=3);
-disk_usage = round(disk_usage, sigfigs=2);
+disk_usage = stat.used / stat.total;
 
 # terminate the program if disk usage is below the limit
 if (disk_usage < du_high):
@@ -36,15 +34,17 @@ if (disk_usage < du_high):
 camera_index = 0;
 while (disk_usage > du_low):
 
-    camera_dir = join(external_drive, cameras[camera_index]);
-    if (not exists(camera_dir)):
-        print ("Camera directory \"" + camera_dir + "\" does not exist!");
-        exit(1);
+    print ("Disk usage at %.2f, " % disk_usage , end = '');
+    for camera in cameras:
+        camera_dir = join(external_drive, cameras[camera_index]);
+        if (not exists(camera_dir)):
+            print ("camera directory \"" + camera_dir + "\" does not exist!");
+            exit(1);
 
     yearlist = listdir(camera_dir);
     yearlist.sort();
     if (not yearlist):
-        print ("No years within camera directory \"" + camera_dir + "\"!");
+        print ("no years within camera directory \"" + camera_dir + "\"!");
         exit(1);
     yearpath = join(camera_dir, yearlist[0]);
 
@@ -53,7 +53,7 @@ while (disk_usage > du_low):
     if (not monthlist):
         # remove the year directory
         if (debuglevel > 1):
-            print ("Removing year directory \"" + yearpath + "\".");
+            print ("removing year directory \"" + yearpath + "\".");
         shutil.rmtree(yearpath);
         continue;
     monthpath = join(yearpath, monthlist[0]);
@@ -63,13 +63,13 @@ while (disk_usage > du_low):
     if (not daylist):
         # remove the year directory
         if (debuglevel > 1):
-            print ("Removing month directory \"" + monthpath + "\".");
+            print ("removing month directory \"" + monthpath + "\".");
         shutil.rmtree(monthpath);
         continue;
     daypath = join(monthpath, daylist[0]);
 
     if (debuglevel > 1):
-        print ("Removing day directory \"" + daypath + "\".");
+        print ("removing day directory \"" + daypath + "\".");
     shutil.rmtree(daypath);
 
     camera_index += 1;
@@ -78,5 +78,8 @@ while (disk_usage > du_low):
 
     # update disk usage
     stat = shutil.disk_usage(external_drive);
-    disk_usage = round(stat.used, sigfigs=3) / round(stat.total, sigfigs=3);
-    disk_usage = round(disk_usage, sigfigs=2);
+    disk_usage = stat.used / stat.total;
+
+if (debuglevel > 0):
+    print("Finished with disk usage at %.2f within limit of %.2f." % (disk_usage, du_low));
+exit(0);
