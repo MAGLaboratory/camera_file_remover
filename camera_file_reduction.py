@@ -12,8 +12,8 @@ from sys import exit;
 debuglevel = 2
 
 # paths
-external_drive = "/media/external_disk/"
-cameras = ["Camera1"]
+external_drive = "/media/external/"
+cameras = ["Camera1","Camera2"]
 
 # disk usage hysteresis
 du_high = 0.90
@@ -31,15 +31,13 @@ if (disk_usage < du_high):
     exit(0);
 
 
-camera_index = 0;
 while (disk_usage > du_low):
 
     print ("Disk usage at %.2f, " % disk_usage , end = '');
-    for camera in cameras:
-        camera_dir = join(external_drive, cameras[camera_index]);
-        if (not exists(camera_dir)):
-            print ("camera directory \"" + camera_dir + "\" does not exist!");
-            exit(1);
+    camera_dir = join(external_drive, cameras[0]);
+    if (not exists(camera_dir)):
+        print ("camera directory \"" + camera_dir + "\" does not exist!");
+        exit(1);
 
     yearlist = listdir(camera_dir);
     yearlist.sort();
@@ -47,34 +45,37 @@ while (disk_usage > du_low):
         print ("no years within camera directory \"" + camera_dir + "\"!");
         exit(1);
     yearpath = join(camera_dir, yearlist[0]);
+    datepath = yearlist[0];
 
     monthlist = listdir(yearpath);
     monthlist.sort();
     if (not monthlist):
         # remove the year directory
-        if (debuglevel > 1):
-            print ("removing year directory \"" + yearpath + "\".");
-        shutil.rmtree(yearpath);
+        for camera in cameras:
+            if (debuglevel > 1):
+                print ("removing year directory \"" + join(external_drive, camera, yearpath) + "\".");
+            shutil.rmtree(join(external_drive, camera, yearpath), ignore_errors=True);
         continue;
     monthpath = join(yearpath, monthlist[0]);
+    datepath = join(datepath, monthlist[0]);
 
     daylist = listdir(monthpath);
     daylist.sort();
     if (not daylist):
-        # remove the year directory
-        if (debuglevel > 1):
-            print ("removing month directory \"" + monthpath + "\".");
-        shutil.rmtree(monthpath);
+        # remove the month directory
+        for camera in cameras:
+            if (debuglevel > 1):
+                print ("removing month directory \"" + join(external_drive, camera, monthpath) + "\".");
+            shutil.rmtree(join(external_drive, camera, monthpath), ignore_errors=True);
         continue;
     daypath = join(monthpath, daylist[0]);
+    datepath = join(datepath, daylist[0]);
 
-    if (debuglevel > 1):
-        print ("removing day directory \"" + daypath + "\".");
-    shutil.rmtree(daypath);
-
-    camera_index += 1;
-    if (camera_index >= len(cameras)):
-        camera_index = 0;
+    # remove the day directory
+    for camera in cameras:
+        if (debuglevel > 1):
+            print ("removing day directory \"" + join(external_drive, camera, datepath) + "\".");
+        shutil.rmtree(join(external_drive, camera, datepath), ignore_errors=True);
 
     # update disk usage
     stat = shutil.disk_usage(external_drive);
