@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # This script prunes the external storage drive for old surveillence camera files
-
 import shutil;
 from os import listdir;
 from os.path import join;
@@ -43,7 +42,6 @@ def rm_wrapper(directory):
             if (try_count >= max_rm_try):
                 raise e;
     # end while try_count lt max_rm_try            
-
     return
 
 # terminate the program if disk usage is below the limit
@@ -53,23 +51,28 @@ if (disk_usage < du_high):
         print("No pruning required.");
     exit(0);
 
-
+# iterate through the directory structure
+# empty directories are removed when hit
+# day directories are removed when they are the smallest date found
 while (disk_usage > du_low):
-
-    print ("Disk usage at %.2f, " % disk_usage , end = '');
+    if (debuglevel > 1):
+        print ("Disk usage at %.2f, " % disk_usage);
     camera_dir = join(external_drive, cameras[0]);
     if (not exists(camera_dir)):
         print ("camera directory \"" + camera_dir + "\" does not exist!");
         exit(1);
 
+    # handle years
     yearlist = listdir(camera_dir);
     yearlist.sort();
     if (not yearlist):
-        print ("no years within camera directory \"" + camera_dir + "\"!");
+        if (debuglevel > 0):          # removing years is a bit rare.
+            print ("no years within camera directory \"" + camera_dir + "\"!");
         exit(1);
     yearpath = join(camera_dir, yearlist[0]);
     datepath = yearlist[0];
 
+    # handle months
     monthlist = listdir(yearpath);
     monthlist.sort();
     if (not monthlist):
@@ -82,6 +85,7 @@ while (disk_usage > du_low):
     monthpath = join(yearpath, monthlist[0]);
     datepath = join(datepath, monthlist[0]);
 
+    # handle days
     daylist = listdir(monthpath);
     daylist.sort();
     if (not daylist):
