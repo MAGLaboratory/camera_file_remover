@@ -8,14 +8,22 @@ from os.path import exists;
 from sys import exit;
 
 # debugging constants
-debuglevel = 2
+debuglevel = 0
 
 # maximum removal tries
 max_rm_try = 3
 
 # paths
 external_drive = "/media/external/cameras"
-cameras = ["Camera1","Camera2"]
+cameras = [
+        "Camera1",
+        "Camera2",
+        "Camera3",
+        "Camera4",
+        "Camera5",
+        "Camera6",
+        "Camera7"
+]
 
 # disk usage hysteresis
 du_high = 0.90
@@ -34,8 +42,9 @@ def rm_wrapper(directory):
             shutil.rmtree(directory);
             break;
         except FileNotFoundError:
-            print("File Not Found When Attempting Removal of \"" 
-                    + directory + "\"");
+            if (debuglevel > 0):
+                print("File Not Found When Attempting Removal of \"" 
+                        + directory + "\"");
         except BaseException as e:
             print("Other Error Encountered When Attempting Removal of \""
                     + directory + "\"");
